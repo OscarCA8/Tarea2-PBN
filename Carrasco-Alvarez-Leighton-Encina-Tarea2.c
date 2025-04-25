@@ -20,3 +20,26 @@ typedef struct cancion {
     char*collaboration;
 } cancion;
 
+void exportar_lista(Cancion *lista, int cantidad) {
+    char nombre_archivo[256];
+    printf("Nombre del archivo de salida (ej: lista.txt): ");
+    scanf("%s", nombre_archivo);
+
+    FILE *archivo = fopen(nombre_archivo, "w");
+    if (!archivo) {
+        perror("No se pudo crear el archivo");
+        return;
+    }
+
+    for (int i = 0; i < cantidad; i++) {
+        fprintf(archivo, "%s: %s - %s (%d) -- %s",
+                lista[i].song_id,
+                lista[i].artist,
+                lista[i].song_title,
+                lista[i].release_year,
+                lista[i].genre);
+    }
+
+    fclose(archivo);
+    printf("Archivo exportado correctamente.");
+}
