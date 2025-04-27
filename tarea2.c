@@ -23,6 +23,89 @@ typedef struct cancion {
     char collaboration[50];
 } cancion;
 
+
+char FilterArtist[50] = "";
+char FilterAlbum[50] = "";
+char FilterGender[50] = "";
+char FilterLenguage[50] = "";
+int FilterMinYear = 0;
+int FilterMaxYear = 0;
+int FilterMinTime = 0;
+int FilterMaxTime = 0;
+
+
+void menu(){
+	int FilterType = 1;
+	
+	while (FilterType != 0) {
+		printf("1) filtrar artista\n");
+		printf("2) filtrar álbum\n");
+		printf("3) filtrar género\n");
+		printf("4) filtrar idioma\n");
+		printf("5) filtrar año de lanzamiento\n");
+		printf("6) filtrar por duracion\n");
+		printf("0) buscar musica filtrada\n");
+		
+		printf("Ingrese numero de filto deseado: ");
+		scanf("%d", &FilterType);
+		printf("\n");
+		
+		
+		//Si seleccionan un numero no planeado
+		while (FilterType > 6 || FilterType < 0){
+			printf("seleccione un numero valido: ");
+			scanf("%d",&FilterType);
+			printf("\n");
+		};
+		
+		if (FilterType == 1){
+		printf("Ingrese nombre de artista: ");
+		scanf("%s",FilterArtist);
+		printf("\n"); 
+		};
+		
+		if (FilterType == 2){
+		printf("Ingrese nombre de álbum: ");
+		scanf("%s",FilterAlbum);
+		printf("\n"); 
+		};
+		
+		if (FilterType == 3){
+		printf("Ingrese género musical: ");
+		scanf("%s",FilterGender);
+		printf("\n"); 
+		};
+		
+		if (FilterType == 4){
+		printf("Ingrese idioma: ");
+		scanf("%s",FilterLenguage);
+		printf("\n"); 
+		};
+		
+		if (FilterType == 5){
+		printf("Ingrese año minimo: ");
+		scanf("%d",&FilterMinYear);
+		printf("\n");
+		printf("Ingrese año maximo: ");
+		scanf("%d",&FilterMaxYear);
+		printf("\n");  
+		};
+		
+		if (FilterType == 6){
+		printf("Ingrese duracion minima: ");
+		scanf("%d",&FilterMinTime);
+		printf("\n");
+		printf("Ingrese duracion maxima: ");
+		scanf("%d",&FilterMaxTime);
+		printf("\n");  
+		};
+		
+		if (FilterType == 0){
+		printf("generando archivo txt\n");
+		};
+	};
+};
+
 int main(void)
 {
     FILE *file = fopen("songs_bd_small.csv", "r");
@@ -37,14 +120,16 @@ int main(void)
 
     // Skip the header line
     fgets(line, sizeof(line), file);
-
+    
+    
+    
+	// Saving the
     while (fgets(line, sizeof(line), file) && entries < MAX_SONGS) {
         char *token;
         int field = 0;
 
         token = strtok(line, ",");
         while (token != NULL && field < 15) {
-            // Remove newline and carriage return at end
             token[strcspn(token, "\r\n")] = 0;
 
             switch (field) {
@@ -73,28 +158,22 @@ int main(void)
             entries++;
         }
     }
-
-    // Print the songs
-    for (int i = 0; i < entries; i++) {
-        printf("%s | %s | %s | %s | %s | %d | %d | %d | %d | %s | %s | %s | %s | %s | %s\n",
-               canciones[i].song_id,
-               canciones[i].song_title,
-               canciones[i].artist,
-               canciones[i].album,
-               canciones[i].genre,
-               canciones[i].release_date,
-               canciones[i].duration,
-               canciones[i].popularity,
-               canciones[i].stream,
-               canciones[i].language,
-               canciones[i].explicit_content,
-               canciones[i].label,
-               canciones[i].composer,
-               canciones[i].producer,
-               canciones[i].collaboration);
-    }
-
+	menu();	
+ 	
     fclose(file);
+    // Mostrar los filtros seleccionados
+    printf("\n======= FILTROS APLICADOS =======\n");
+    printf("Artista: %s\n", FilterArtist);
+    printf("Álbum: %s\n", FilterAlbum);
+    printf("Género: %s\n", FilterGender);
+    printf("Idioma: %s\n", FilterLenguage);
+    printf("Año mínimo: %d\n", FilterMinYear);
+    printf("Año máximo: %d\n", FilterMaxYear);
+    printf("Duración mínima: %d segundos\n", FilterMinTime);
+    printf("Duración máxima: %d segundos\n", FilterMaxTime);
+    printf("=================================\n");
+    
+    
     return 0;
-}
+};
 
