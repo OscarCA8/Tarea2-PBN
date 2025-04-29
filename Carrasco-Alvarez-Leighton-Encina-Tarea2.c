@@ -37,20 +37,22 @@ int FilterMaxTime = 0;
 void menu(){
 	int FilterType = 1;
 	
-	while (FilterType != 0) {
+	while (FilterType != 0 && FilterType != 7) {
+        printf("\\n===== SISTEMA DE FILTRADO DE CANCIONES =====\\n\\n");
 		printf("1) filtrar por artista\n");
 		printf("2) filtrar por álbum\n");
 		printf("3) filtrar por género\n");
 		printf("4) filtrar por idioma\n");
 		printf("5) filtrar por año de lanzamiento\n");
 		printf("6) filtrar por duracion\n");
+        printf("7) salir sin exportar\n");
 		printf("0) buscar musica filtrada\n");
 		
 		printf("Ingrese numero de filtro deseado: ");
 		scanf("%d", &FilterType);
 		printf("\n");
 		
-		while (FilterType > 6 || FilterType < 0){
+		while (FilterType > 7 || FilterType < 0){
 			printf("seleccione un numero valido: ");
 			scanf("%d",&FilterType);
 			printf("\n");
@@ -98,6 +100,11 @@ void menu(){
 		printf("\n");  
 		};
 		
+        if (FilterType == 7){
+            printf("Saliendo sin exportar... ¡Gracias por usar el programa! c:\n");
+            break;
+            };
+
 		if (FilterType == 0){
 		printf("generando archivo txt\n");
 		};
@@ -138,6 +145,19 @@ void exportar_lista(cancion *lista, int cantidad) {
 
     fclose(archivo);
     printf("Archivo exportado correctamente. ¡Gracias por usar el programa! c:");
+}
+
+void ver_primeras_canciones(cancion *lista, int cantidad) {
+    int limite = (cantidad < 100) ? cantidad : 100;
+    printf("\nMostrando primeras %d canciones:\n\n", limite);
+    for (int i = 0; i < limite; i++) {
+        printf("%s: %s - %s (%d) -- %s\n",
+               lista[i].song_id,
+               lista[i].artist,
+               lista[i].song_title,
+               lista[i].release_date,
+               lista[i].genre);
+    }
 }
 
 int main(void)
@@ -218,9 +238,31 @@ int main(void)
         }
     }
 
-    printf("\n=== %d canciones encontradas ===.\n", cantidad_filtradas);
+    printf("\n=== %d canciones encontradas ===\n\n", cantidad_filtradas);
 
-    exportar_lista(canciones_filtradas, cantidad_filtradas);
+    int accion = -1;
+    while (accion != 4) {
+        printf("Ver primeras 100 canciones\n");
+        printf("Aplicar otro filtro\n");
+        printf("Exportar y salir\n");
+        printf("Salir sin exportar\n\n");
+        printf("Seleccione una opción (1-4): ");
+        scanf("%d", &accion);
+
+        if (accion == 1) {
+            ver_primeras_canciones(canciones_filtradas, cantidad_filtradas);
+        } else if (accion == 2) {
+            printf("Aqui falta lo de aplicar otro filtro.\n");
+        } else if (accion == 3) {
+            exportar_lista(canciones_filtradas, cantidad_filtradas);
+            break;
+        } else if (accion == 4) {
+            printf("Saliendo sin exportar. ¡Gracias por usar el programa!\n");
+            break;
+        } else {
+            printf("Opción inválida. Intente de nuevo.\n");
+        }
+    }
 
     return 0;
 };
