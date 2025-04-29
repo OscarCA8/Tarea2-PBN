@@ -139,7 +139,18 @@ void FilterMenu(){
 	};
 };
 	
-	
+void ver_primeras_canciones(cancion *lista, int cantidad) {
+    int limite = (cantidad < 100) ? cantidad : 100;
+    printf("\nMostrando primeras %d canciones:\n\n", limite);
+    for (int i = 0; i < limite; i++) {
+        printf("%s: %s - %s (%d) -- %s\n",
+               lista[i].song_id,
+               lista[i].artist,
+               lista[i].song_title,
+               lista[i].release_date,
+               lista[i].genre);
+    }
+}	
 int main(void) 
 {
 	FILE *file = fopen("songs_bd_big.csv", "r");
@@ -242,8 +253,9 @@ int main(void)
 		};
 		
 		if (OutputType == 1){
-		
-		
+		printf("mostrando canciones");
+		ver_primeras_canciones(canciones_filtradas, cantidad_filtradas);
+
 		};
 		
 		if (OutputType == 2){
