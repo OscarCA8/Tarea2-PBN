@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_LENGTH 1024
+#define MAX_LINE_LENGTH 2048
 #define MAX_SONGS 10000
 
 typedef struct cancion {
@@ -46,6 +46,110 @@ int verificar_filtros(cancion c) {
 	return 1;
 }
 
+int es_artista_unico(char artista[50], char lista[][50], int total) {
+    for (int i = 0; i < total; i++) {
+        if (strcmp(artista, lista[i]) == 0) return 0;
+    }
+    return 1;
+}
+
+int es_album_unico(char album[50], char lista[][50], int total) {
+    for (int i = 0; i < total; i++) {
+        if (strcmp(album, lista[i]) == 0) return 0;
+    }
+    return 1;
+}
+
+int es_genero_unico(char genre[50], char lista[][50], int total) {
+    for (int i = 0; i < total; i++) {
+        if (strcmp(genre, lista[i]) == 0) return 0;
+    }
+    return 1;
+}
+
+int es_idioma_unico(char lenguage[50], char lista[][50], int total) {
+    for (int i = 0; i < total; i++) {
+        if (strcmp(lenguage, lista[i]) == 0) return 0;
+    }
+    return 1;
+}
+
+
+void mostrar_artistas_unicos(cancion *canciones, int total_canciones) {
+    char artistas[100][50];
+    int total_unicos = 0;
+
+    for (int i = 0; i < total_canciones && total_unicos < 100; i++) {
+        if (es_artista_unico(canciones[i].artist, artistas, total_unicos)) {
+            strncpy(artistas[total_unicos], canciones[i].artist, 49);
+            total_unicos++;
+        }
+    }
+
+    printf("\nMostrando hasta 100 artistas únicos:\n\n");
+    for (int i = 0; i < total_unicos; i++) {
+        printf("%s\n", artistas[i]);
+    }
+    printf("\n");
+}
+
+void mostrar_albums_unicos(cancion *canciones, int total_canciones) {
+    char album[100][50];
+    int total_unicos = 0;
+
+    for (int i = 0; i < total_canciones && total_unicos < 100; i++) {
+        if (es_genero_unico(canciones[i].album, album, total_unicos)) {
+            strncpy(album[total_unicos], canciones[i].album, 49);
+            total_unicos++;
+        }
+    }
+
+    printf("\nMostrando hasta 100 album únicos:\n\n");
+    for (int i = 0; i < total_unicos; i++) {
+        printf("%s\n", album[i]);
+    }
+    printf("\n");
+}
+
+void mostrar_generos_unicos(cancion *canciones, int total_canciones) {
+    char genre[100][50];
+    int total_unicos = 0;
+
+    for (int i = 0; i < total_canciones && total_unicos < 100; i++) {
+        if (es_genero_unico(canciones[i].genre, genre, total_unicos)) {
+            strncpy(genre[total_unicos], canciones[i].genre, 49);
+            total_unicos++;
+        }
+    }
+
+    printf("\nMostrando generos:\n\n");
+    for (int i = 0; i < total_unicos; i++) {
+        printf("%s\n", genre[i]);
+    }
+    printf("\n");
+}
+
+void mostrar_idioma_unicos(cancion *canciones, int total_canciones) {
+    char language[100][50];
+    int total_unicos = 0;
+
+    for (int i = 0; i < total_canciones && total_unicos < 100; i++) {
+        if (es_idioma_unico(canciones[i].language, language, total_unicos)) {
+            strncpy(language[total_unicos], canciones[i].language, 49);
+            total_unicos++;
+        }
+    }
+
+    printf("\nMostrando idiomas:\n\n");
+    for (int i = 0; i < total_unicos; i++) {
+        printf("%s\n", language[i]);
+    }
+    printf("\n");
+}
+
+
+
+
 void exportar_lista(cancion *lista, int cantidad) {
 	char nombre_archivo[256];
 	printf("Nombre del archivo de salida (nombre.txt): ");
@@ -70,7 +174,7 @@ void exportar_lista(cancion *lista, int cantidad) {
 	printf("Archivo exportado correctamente. ¡Gracias por usar el programa! c:");
 }
 
-void FilterMenu(){
+void FilterMenu(cancion *canciones, int total_canciones){
 	int FilterType = 1;
 	
 	while (FilterType != 0) {
@@ -87,33 +191,41 @@ void FilterMenu(){
 		printf("\n-----------------------------------\n");
 
 		
-		while (FilterType > 6 || FilterType < 0){
+		while (FilterType > 7 || FilterType < 0){
 			printf("seleccione un numero valido: ");
 			scanf("%d",&FilterType);
 			printf("\n-----------------------------------\n");
 		};
 		
 		if (FilterType == 1){
+		mostrar_artistas_unicos(canciones, total_canciones);
 		printf("Ingrese nombre de artista: ");
-		scanf("%49s", FilterArtist);
+		scanf("\n");
+		scanf("%[^\n]", FilterArtist);
 		printf("\n"); 
 		};
 		
 		if (FilterType == 2){
+		mostrar_albums_unicos(canciones, total_canciones);
 		printf("Ingrese nombre de álbum: ");
-		scanf("%49s",FilterAlbum);
+		scanf("\n");
+		scanf("%[^\n]",FilterAlbum);
 		printf("\n"); 
 		};
 		
 		if (FilterType == 3){
+		mostrar_generos_unicos(canciones, total_canciones);
 		printf("Ingrese género musical: ");
-		scanf("%49s",FilterGender);
+		scanf("\n");
+		scanf("%[^\n]",FilterGender);
 		printf("\n"); 
 		};
 		
 		if (FilterType == 4){
+		mostrar_idioma_unicos(canciones, total_canciones);
 		printf("Ingrese idioma: ");
-		scanf("%49s",FilterLenguage);
+		scanf("\n");
+		scanf("%[^\n]",FilterLenguage);
 		printf("\n"); 
 		};
 		
@@ -133,7 +245,7 @@ void FilterMenu(){
 		printf("Ingrese duracion maxima: ");
 		scanf("%d",&FilterMaxTime);
 		printf("\n");  
-		};		
+		};
 		printf("-----------------------------------\n");
 		
 	};
@@ -150,10 +262,20 @@ void ver_primeras_canciones(cancion *lista, int cantidad) {
                lista[i].release_date,
                lista[i].genre);
     }
-}	
+}
+	
 int main(void) 
 {
-	FILE *file = fopen("songs_bd_big.csv", "r");
+	char nombre_archivo[100];
+	printf("¿Qué archivo desea usar? (1 = small, 2 = big): ");
+	int opcion_archivo = 0;
+	scanf("%d", &opcion_archivo);
+	if(opcion_archivo == 1){
+	strcpy(nombre_archivo, "songs_bd_small.csv");
+    	} else {
+        strcpy(nombre_archivo, "songs_bd_big.csv");
+        }
+	FILE *file = fopen(nombre_archivo, "r");
 	if (file == NULL) {
 	perror("Error opening file");
 	return 1;
@@ -218,7 +340,7 @@ int main(void)
 
 	fclose(file);
 
-	FilterMenu();	
+	FilterMenu(canciones, entries);	
 
 
 
@@ -259,10 +381,15 @@ int main(void)
 		};
 		
 		if (OutputType == 2){
-		printf("exportando programa\n");
+		printf("Exportando archivo...\n");
 		exportar_lista(canciones_filtradas, cantidad_filtradas);
 		};
 		printf("\n-----------------------------------\n");
+		
+		if (OutputType == 3){
+		printf("El programa ha finalizado... Muchas gracias por usar el programa c:\n");
+		
+		};
 	};
 
 
