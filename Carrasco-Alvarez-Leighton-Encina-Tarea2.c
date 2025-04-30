@@ -2,25 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LINE_LENGTH 1024
-#define MAX_SONGS 100
+#define MAX_LINE_LENGTH 2048
+#define MAX_SONGS 10000
 
 typedef struct cancion {
-    char song_id[50];
-    char song_title[50];
-    char artist[50];
-    char album[50];
-    char genre[50];
-    int release_date;
-    int duration;
-    int popularity;
-    int stream;
-    char language[50];
-    char explicit_content[50];
-    char label[50];
-    char composer[50];
-    char producer[50];
-    char collaboration[50];
+	char song_id[50];
+	char song_title[50];
+	char artist[50];
+	char album[50];
+	char genre[50];
+	int release_date;
+	int duration;
+	int popularity;
+	int stream;
+	char language[50];
+	char explicit_content[50];
+	char label[50];
+	char composer[50];
+	char producer[50];
+	char collaboration[50];
 } cancion;
 
 
@@ -34,51 +34,116 @@ int FilterMinTime = 0;
 int FilterMaxTime = 0;
 
 
-void menu(){
+int verificar_filtros(cancion c) {
+	if (strlen(FilterArtist) > 0 && strcmp(c.artist, FilterArtist) != 0) return 0;
+	if (strlen(FilterAlbum) > 0 && strcmp(c.album, FilterAlbum) != 0) return 0;
+	if (strlen(FilterGender) > 0 && strcmp(c.genre, FilterGender) != 0) return 0;
+	if (strlen(FilterLenguage) > 0 && strcmp(c.language, FilterLenguage) != 0) return 0;
+	if (FilterMinYear > 0 && c.release_date < FilterMinYear) return 0;
+	if (FilterMaxYear > 0 && c.release_date > FilterMaxYear) return 0;
+	if (FilterMinTime > 0 && c.duration < FilterMinTime) return 0;
+	if (FilterMaxTime > 0 && c.duration > FilterMaxTime) return 0;
+	return 1;
+}
+
+int es_artista_unico(char artista[50], char lista[][50], int total) {
+    for (int i = 0; i < total; i++) {
+        if (strcmp(artista, lista[i]) == 0) return 0;
+    }
+    return 1;
+}
+
+void mostrar_artistas_unicos(cancion *canciones, int total_canciones) {
+    char artistas[100][50];
+    int total_unicos = 0;
+
+    for (int i = 0; i < total_canciones && total_unicos < 100; i++) {
+        if (es_artista_unico(canciones[i].artist, artistas, total_unicos)) {
+            strncpy(artistas[total_unicos], canciones[i].artist, 49);
+            total_unicos++;
+        }
+    }
+
+    printf("\nMostrando hasta 100 artistas únicos:\n\n");
+    for (int i = 0; i < total_unicos; i++) {
+        printf("%s\n", artistas[i]);
+    }
+    printf("\n");
+}
+
+void exportar_lista(cancion *lista, int cantidad) {
+	char nombre_archivo[256];
+	printf("Nombre del archivo de salida (nombre.txt): ");
+	scanf("%s", nombre_archivo);
+
+	FILE *archivo = fopen(nombre_archivo, "w");
+	if (!archivo) {
+	perror("No se pudo crear el archivo");
+	return;
+	}
+
+	for (int i = 0; i < cantidad; i++) {
+	fprintf(archivo, "%s: %s - %s (%d) -- %s\n",
+		lista[i].song_id,
+		lista[i].artist,
+		lista[i].song_title,
+		lista[i].release_date,
+		lista[i].genre);
+	}
+
+	fclose(archivo);
+	printf("Archivo exportado correctamente. ¡Gracias por usar el programa! c:");
+}
+
+void FilterMenu(cancion *canciones, int total_canciones){
 	int FilterType = 1;
 	
-	while (FilterType != 0 && FilterType != 7) {
-        printf("\\n===== SISTEMA DE FILTRADO DE CANCIONES =====\\n\\n");
+	while (FilterType != 0) {
 		printf("1) filtrar por artista\n");
 		printf("2) filtrar por álbum\n");
 		printf("3) filtrar por género\n");
 		printf("4) filtrar por idioma\n");
 		printf("5) filtrar por año de lanzamiento\n");
 		printf("6) filtrar por duracion\n");
-        printf("7) salir sin exportar\n");
-		printf("0) buscar musica filtrada\n");
+		printf("0) terminar de filtrar\n");
 		
 		printf("Ingrese numero de filtro deseado: ");
 		scanf("%d", &FilterType);
-		printf("\n");
+		printf("\n-----------------------------------\n");
+
 		
 		while (FilterType > 7 || FilterType < 0){
 			printf("seleccione un numero valido: ");
 			scanf("%d",&FilterType);
-			printf("\n");
+			printf("\n-----------------------------------\n");
 		};
 		
 		if (FilterType == 1){
+		mostrar_artistas_unicos(canciones, total_canciones);
 		printf("Ingrese nombre de artista: ");
-		scanf("%s",FilterArtist);
+		scanf("\n");
+		scanf("%[^\n]", FilterArtist);
 		printf("\n"); 
 		};
 		
 		if (FilterType == 2){
 		printf("Ingrese nombre de álbum: ");
-		scanf("%s",FilterAlbum);
+		scanf("\n");
+		scanf("%[^\n]",FilterAlbum);
 		printf("\n"); 
 		};
 		
 		if (FilterType == 3){
 		printf("Ingrese género musical: ");
-		scanf("%s",FilterGender);
+		scanf("\n");
+		scanf("%[^\n]",FilterGender);
 		printf("\n"); 
 		};
 		
 		if (FilterType == 4){
 		printf("Ingrese idioma: ");
-		scanf("%s",FilterLenguage);
+		scanf("\n");
+		scanf("%[^\n]",FilterLenguage);
 		printf("\n"); 
 		};
 		
@@ -99,54 +164,11 @@ void menu(){
 		scanf("%d",&FilterMaxTime);
 		printf("\n");  
 		};
+		printf("-----------------------------------\n");
 		
-        if (FilterType == 7){
-            printf("Saliendo sin exportar... ¡Gracias por usar el programa! c:\n");
-            break;
-            };
-
-		if (FilterType == 0){
-		printf("generando archivo txt\n");
-		};
 	};
 };
-
-int verificar_filtros(cancion c) {
-    if (strlen(FilterArtist) > 0 && strcmp(c.artist, FilterArtist) != 0) return 0;
-    if (strlen(FilterAlbum) > 0 && strcmp(c.album, FilterAlbum) != 0) return 0;
-    if (strlen(FilterGender) > 0 && strcmp(c.genre, FilterGender) != 0) return 0;
-    if (strlen(FilterLenguage) > 0 && strcmp(c.language, FilterLenguage) != 0) return 0;
-    if (FilterMinYear > 0 && c.release_date < FilterMinYear) return 0;
-    if (FilterMaxYear > 0 && c.release_date > FilterMaxYear) return 0;
-    if (FilterMinTime > 0 && c.duration < FilterMinTime) return 0;
-    if (FilterMaxTime > 0 && c.duration > FilterMaxTime) return 0;
-    return 1;
-}
-
-void exportar_lista(cancion *lista, int cantidad) {
-    char nombre_archivo[256];
-    printf("Nombre del archivo de salida (nombre.txt): ");
-    scanf("%s", nombre_archivo);
-
-    FILE *archivo = fopen(nombre_archivo, "w");
-    if (!archivo) {
-        perror("No se pudo crear el archivo");
-        return;
-    }
-
-    for (int i = 0; i < cantidad; i++) {
-        fprintf(archivo, "%s: %s - %s (%d) -- %s\n",
-                lista[i].song_id,
-                lista[i].artist,
-                lista[i].song_title,
-                lista[i].release_date,
-                lista[i].genre);
-    }
-
-    fclose(archivo);
-    printf("Archivo exportado correctamente. ¡Gracias por usar el programa! c:");
-}
-
+	
 void ver_primeras_canciones(cancion *lista, int cantidad) {
     int limite = (cantidad < 100) ? cantidad : 100;
     printf("\nMostrando primeras %d canciones:\n\n", limite);
@@ -159,110 +181,138 @@ void ver_primeras_canciones(cancion *lista, int cantidad) {
                lista[i].genre);
     }
 }
-
-int main(void)
+	
+int main(void) 
 {
-    FILE *file = fopen("songs_bd_small.csv", "r");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
-
-    char line[MAX_LINE_LENGTH];
-    cancion canciones[MAX_SONGS];
-    int entries = 0;
-
-    fgets(line, sizeof(line), file);
-
-    while (fgets(line, sizeof(line), file) && entries < MAX_SONGS) {
-        char *token;
-        int field = 0;
-
-        token = strtok(line, ",");
-        while (token != NULL && field < 15) {
-            token[strcspn(token, "\r\n")] = 0;
-
-            switch (field) {
-                case 0: strncpy(canciones[entries].song_id, token, 49); break;
-                case 1: strncpy(canciones[entries].song_title, token, 49); break;
-                case 2: strncpy(canciones[entries].artist, token, 49); break;
-                case 3: strncpy(canciones[entries].album, token, 49); break;
-                case 4: strncpy(canciones[entries].genre, token, 49); break;
-                case 5: {
-                    char year[5];
-                    strncpy(year, token, 4);
-                    year[4] = '\0';
-                    canciones[entries].release_date = atoi(year);
-                    break;
-                }
-                case 6: canciones[entries].duration = atoi(token); break;
-                case 7: canciones[entries].popularity = atoi(token); break;
-                case 8: canciones[entries].stream = atoi(token); break;
-                case 9: strncpy(canciones[entries].language, token, 49); break;
-                case 10: strncpy(canciones[entries].explicit_content, token, 49); break;
-                case 11: strncpy(canciones[entries].label, token, 49); break;
-                case 12: strncpy(canciones[entries].composer, token, 49); break;
-                case 13: strncpy(canciones[entries].producer, token, 49); break;
-                case 14: strncpy(canciones[entries].collaboration, token, 49); break;
-            }
-
-            token = strtok(NULL, ",");
-            field++;
+	char nombre_archivo[100];
+	printf("¿Qué archivo desea usar? (1 = small, 2 = big): ");
+	int opcion_archivo = 0;
+	scanf("%d", &opcion_archivo);
+	if(opcion_archivo == 1){
+	strcpy(nombre_archivo, "songs_bd_small.csv");
+    	} else {
+        strcpy(nombre_archivo, "songs_bd_big.csv");
         }
+	FILE *file = fopen(nombre_archivo, "r");
+	if (file == NULL) {
+	perror("Error opening file");
+	return 1;
+	}
 
-        if (field == 15) {
-            entries++;
-        }
-    }
-	menu();	
- 	
-    fclose(file);
+	char line[MAX_LINE_LENGTH];
 
-    printf("\n======= FILTROS APLICADOS =======\n");
-    printf("Artista: %s\n", FilterArtist);
-    printf("Álbum: %s\n", FilterAlbum);
-    printf("Género: %s\n", FilterGender);
-    printf("Idioma: %s\n", FilterLenguage);
-    printf("Año mínimo: %d\n", FilterMinYear);
-    printf("Año máximo: %d\n", FilterMaxYear);
-    printf("Duración mínima: %d segundos\n", FilterMinTime);
-    printf("Duración máxima: %d segundos\n", FilterMaxTime);
-    printf("=================================\n");
-    
-    cancion canciones_filtradas[MAX_SONGS];
-    int cantidad_filtradas = 0;
 
-    for (int i = 0; i < entries; i++) {
-        if (verificar_filtros(canciones[i])) {
-            canciones_filtradas[cantidad_filtradas++] = canciones[i];
-        }
-    }
+	cancion *canciones = malloc(sizeof(cancion) * MAX_SONGS);
+	cancion *canciones_filtradas = malloc(sizeof(cancion) * MAX_SONGS);
 
-    printf("\n=== %d canciones encontradas ===\n\n", cantidad_filtradas);
 
-    int accion = -1;
-    while (accion != 4) {
-        printf("Ver primeras 100 canciones\n");
-        printf("Aplicar otro filtro\n");
-        printf("Exportar y salir\n");
-        printf("Salir sin exportar\n\n");
-        printf("Seleccione una opción (1-4): ");
-        scanf("%d", &accion);
+	if (!canciones || !canciones_filtradas) {
+	fprintf(stderr, "Error: No se pudo asignar memoria.\n");
+	fclose(file);
+	return 1;}
 
-        if (accion == 1) {
-            ver_primeras_canciones(canciones_filtradas, cantidad_filtradas);
-        } else if (accion == 2) {
-            printf("Aqui falta lo de aplicar otro filtro.\n");
-        } else if (accion == 3) {
-            exportar_lista(canciones_filtradas, cantidad_filtradas);
-            break;
-        } else if (accion == 4) {
-            printf("Saliendo sin exportar. ¡Gracias por usar el programa!\n");
-            break;
-        } else {
-            printf("Opción inválida. Intente de nuevo.\n");
-        }
-    }
+	 int entries = 0;
+	fgets(line, sizeof(line), file);
 
-    return 0;
-};
+	while (fgets(line, sizeof(line), file) && entries < MAX_SONGS) {
+	char *token;
+	int field = 0;
+
+	token = strtok(line, ",");
+	while (token != NULL && field < 15) {
+	    token[strcspn(token, "\r\n")] = 0;
+
+	    switch (field) {
+		case 0: strncpy(canciones[entries].song_id, token, 49); break;
+		case 1: strncpy(canciones[entries].song_title, token, 49); break;
+		case 2: strncpy(canciones[entries].artist, token, 49); break;
+		case 3: strncpy(canciones[entries].album, token, 49); break;
+		case 4: strncpy(canciones[entries].genre, token, 49); break;
+		case 5: {
+		    char year[5];
+		    strncpy(year, token, 4);
+		    year[4] = '\0';
+		    canciones[entries].release_date = atoi(year);
+		    break;
+		}
+		case 6: canciones[entries].duration = atoi(token); break;
+		case 7: canciones[entries].popularity = atoi(token); break;
+		case 8: canciones[entries].stream = atoi(token); break;
+		case 9: strncpy(canciones[entries].language, token, 49); break;
+		case 10: strncpy(canciones[entries].explicit_content, token, 49); break;
+		case 11: strncpy(canciones[entries].label, token, 49); break;
+		case 12: strncpy(canciones[entries].composer, token, 49); break;
+		case 13: strncpy(canciones[entries].producer, token, 49); break;
+		case 14: strncpy(canciones[entries].collaboration, token, 49); break;
+	    }
+
+	    token = strtok(NULL, ",");
+	    field++;
+	}
+
+	if (field == 15) {
+	    entries++;
+	}
+	}
+
+
+	fclose(file);
+
+	FilterMenu(canciones, entries);	
+
+
+
+
+	int cantidad_filtradas = 0;
+
+	for (int i = 0; i < entries; i++) {
+	if (verificar_filtros(canciones[i])) {
+	    canciones_filtradas[cantidad_filtradas++] = canciones[i];
+	}}
+	
+
+	printf("\n=== %d canciones encontradas ===.\n", cantidad_filtradas);
+
+
+
+	int OutputType = 1;
+
+	while (OutputType!=3) {
+		printf("1) Visualizar primeras canciones\n");
+		printf("2) Exportar la lista a un archivo de texto\n");
+		printf("3) Terminar programa\n");
+		
+		printf("Ingrese numero de accion deseada: ");
+		scanf("%d",&OutputType);
+		printf("\n-----------------------------------\n");
+		
+		while (OutputType > 3 || OutputType < 1){
+				printf("seleccione un numero valido: ");
+				scanf("%d",&OutputType);
+				printf("\n-----------------------------------\n");
+		};
+		
+		if (OutputType == 1){
+		printf("mostrando canciones");
+		ver_primeras_canciones(canciones_filtradas, cantidad_filtradas);
+
+		};
+		
+		if (OutputType == 2){
+		printf("Exportando archivo...\n");
+		exportar_lista(canciones_filtradas, cantidad_filtradas);
+		};
+		printf("\n-----------------------------------\n");
+		
+		if (OutputType == 3){
+		printf("El programa ha finalizado... Muchas gracias por usar el programa c:\n");
+		
+		};
+	};
+
+
+	free(canciones);
+	free(canciones_filtradas);
+
+	return 0;
+	};
